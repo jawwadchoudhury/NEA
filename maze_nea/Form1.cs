@@ -361,14 +361,20 @@ namespace maze_nea
 
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
-            maze.setWidth((int)widthUpDown.Value);
-            generateEmptyMaze(maze.Width, maze.Height);
+            if (!isGenerating)
+            {
+                maze.setWidth((int)widthUpDown.Value);
+                generateEmptyMaze(maze.Width, maze.Height);
+            }
         }
 
         private void heightUpDown_ValueChanged(object sender, EventArgs e)
         {
-            maze.setHeight((int)heightUpDown.Value);
-            generateEmptyMaze(maze.Width, maze.Height);
+            if (!isGenerating)
+            {
+                maze.setHeight((int)heightUpDown.Value);
+                generateEmptyMaze(maze.Width, maze.Height);
+            }
         }
     }
 }
