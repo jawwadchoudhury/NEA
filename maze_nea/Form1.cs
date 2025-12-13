@@ -23,6 +23,7 @@ namespace maze_nea
             public int Width { get; private set; }
             public int Height { get; private set; }
             public int NodeSize { get; private set; }
+            public int StartNodeIndex { get; private set; }
             public int EndNodeIndex { get; private set; }
             public Maze(int width, int height)
             {
@@ -52,6 +53,10 @@ namespace maze_nea
             public void setEndNodeIndex(int endNodeIndex)
             {
                 EndNodeIndex = endNodeIndex;
+            }
+            public void setStartNodeIndex(int startNodeIndex)
+            {
+                StartNodeIndex = startNodeIndex;
             }
         }
         public class Node
@@ -293,28 +298,24 @@ namespace maze_nea
                 }
             }
 
-            //Block to create an exit (on one of the edge nodes)
-            switch (random.Next(0, 4))
+            //Block to create a start and exit (on two of the edge nodes, opposite ends)
+            switch (random.Next(0, 2))
             {
                 case 0:
-                    int exitIndex = random.Next(0, maze.Width);
-                    maze.setEndNodeIndex(exitIndex);
-                    maze.Nodes[exitIndex].removeTopValue();
+                    int startNodeIndex = random.Next(0, maze.Width);
+                    maze.setStartNodeIndex(startNodeIndex);
+                    maze.Nodes[startNodeIndex].removeTopValue();
+                    int endNodeIndex = maze.Width * (maze.Height - 1) + random.Next(0, maze.Width);
+                    maze.setEndNodeIndex(endNodeIndex);
+                    maze.Nodes[endNodeIndex].removeBottomValue();
                     break;
                 case 1:
-                    exitIndex = random.Next(0, maze.Height) * maze.Width + (maze.Width - 1);
-                    maze.setEndNodeIndex(exitIndex);
-                    maze.Nodes[exitIndex].removeRightValue();
-                    break;
-                case 2:
-                    exitIndex = maze.Width * (maze.Height - 1) + random.Next(0, maze.Width);
-                    maze.setEndNodeIndex(exitIndex);
-                    maze.Nodes[exitIndex].removeBottomValue();
-                    break;
-                case 3:
-                    exitIndex = maze.Width * random.Next(0, maze.Height);
-                    maze.setEndNodeIndex(exitIndex);
-                    maze.Nodes[exitIndex].removeLeftValue();
+                    startNodeIndex = random.Next(0, maze.Height) * maze.Width + (maze.Width - 1);
+                    maze.setStartNodeIndex(startNodeIndex);
+                    maze.Nodes[startNodeIndex].removeRightValue();
+                    endNodeIndex = maze.Width * random.Next(0, maze.Height);
+                    maze.setEndNodeIndex(endNodeIndex);
+                    maze.Nodes[endNodeIndex].removeLeftValue();
                     break;
             }
             foreach (Control control in mazePanel.Controls)
@@ -322,6 +323,9 @@ namespace maze_nea
                 control.BackColor = DefaultBackColor;
             }
             isGenerating = false;
+            widthUpDown.Enabled = true;
+            heightUpDown.Enabled = true;
+            generateMazeButton.Enabled = true;
         }
 
         private void drawMaze()
@@ -354,6 +358,9 @@ namespace maze_nea
         {
             if (!isGenerating) {
                 isGenerating = true;
+                widthUpDown.Enabled = false;
+                heightUpDown.Enabled = false;
+                generateMazeButton.Enabled = false;
                 generateEmptyMaze(maze.Width, maze.Height);
                 primsAlgorithm();
             }
@@ -361,18 +368,20 @@ namespace maze_nea
 
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
-            if (isGenerating) widthUpDown.ReadOnly = true;
-            if (!isGenerating) widthUpDown.ReadOnly = false;
-            maze.setWidth((int)widthUpDown.Value);
-            generateEmptyMaze(maze.Width, maze.Height);
+            if (!isGenerating)
+            {
+                maze.setWidth((int)widthUpDown.Value);
+                generateEmptyMaze(maze.Width, maze.Height);
+            }
         }
 
         private void heightUpDown_ValueChanged(object sender, EventArgs e)
         {
-            if (isGenerating) heightUpDown.ReadOnly = true;
-            if (!isGenerating) heightUpDown.ReadOnly = false;
-            maze.setHeight((int)heightUpDown.Value);
-            generateEmptyMaze(maze.Width, maze.Height);
+            if (!isGenerating)
+            {
+                maze.setHeight((int)heightUpDown.Value);
+                generateEmptyMaze(maze.Width, maze.Height);
+            }
         }
     }
 }
