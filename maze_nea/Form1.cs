@@ -259,16 +259,23 @@ namespace maze_nea
                 if (currentFrontiers.Count > 0)
                 {
                     int primaryIndex = currentFrontiers[random.Next(0, currentFrontiers.Count)];
-                    // Create tunnel between randomFrontierIndex and randomAdjacentPrimaryIndex
-                    // (Implementation of tunnel creation goes here)
                     int getDirection(int indexA, int indexB)
                     {
-                        if (indexA - maze.Width == indexB) return 0; // Up
-                        if (indexA + 1 == indexB) return 1; // Right
-                        if (indexA + maze.Width == indexB) return 2; // Down
-                        if (indexA - 1 == indexB) return 3; // Left
-                        return -1;
+                        switch (indexA)
+                        {
+                            case int n when (n - maze.Width == indexB):
+                                return 0; // Up
+                            case int n when (n + 1 == indexB):
+                                return 1; // Right
+                            case int n when (n + maze.Width == indexB):
+                                return 2; // Down
+                            case int n when (n - 1 == indexB):
+                                return 3; // Left
+                            default:
+                                return -1;
+                        }
                     }
+
                     switch (getDirection(primaryIndex, frontierIndex))
                     {
                         case 0:
