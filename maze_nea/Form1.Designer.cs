@@ -34,25 +34,26 @@
             this.widthLabel = new System.Windows.Forms.Label();
             this.heightLabel = new System.Windows.Forms.Label();
             this.generateMazeButton = new System.Windows.Forms.Button();
-            this.outputLabel = new System.Windows.Forms.Label();
+            this.seedLabel = new System.Windows.Forms.Label();
+            this.seedTextBox = new System.Windows.Forms.TextBox();
+            this.solveMazeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.heightUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // mazePanel
             // 
-            this.mazePanel.Location = new System.Drawing.Point(112, 46);
-            this.mazePanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.mazePanel.BackColor = System.Drawing.Color.White;
+            this.mazePanel.Location = new System.Drawing.Point(75, 30);
             this.mazePanel.Name = "mazePanel";
-            this.mazePanel.Size = new System.Drawing.Size(825, 846);
+            this.mazePanel.Size = new System.Drawing.Size(550, 550);
             this.mazePanel.TabIndex = 0;
             // 
             // widthUpDown
             // 
             this.widthUpDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.widthUpDown.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.widthUpDown.Location = new System.Drawing.Point(716, 948);
-            this.widthUpDown.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.widthUpDown.Location = new System.Drawing.Point(477, 616);
             this.widthUpDown.Maximum = new decimal(new int[] {
             25,
             0,
@@ -64,7 +65,7 @@
             0,
             0});
             this.widthUpDown.Name = "widthUpDown";
-            this.widthUpDown.Size = new System.Drawing.Size(98, 31);
+            this.widthUpDown.Size = new System.Drawing.Size(65, 23);
             this.widthUpDown.TabIndex = 1;
             this.widthUpDown.Value = new decimal(new int[] {
             3,
@@ -77,8 +78,7 @@
             // 
             this.heightUpDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.heightUpDown.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.heightUpDown.Location = new System.Drawing.Point(840, 948);
-            this.heightUpDown.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.heightUpDown.Location = new System.Drawing.Point(560, 616);
             this.heightUpDown.Maximum = new decimal(new int[] {
             25,
             0,
@@ -90,7 +90,7 @@
             0,
             0});
             this.heightUpDown.Name = "heightUpDown";
-            this.heightUpDown.Size = new System.Drawing.Size(98, 31);
+            this.heightUpDown.Size = new System.Drawing.Size(65, 23);
             this.heightUpDown.TabIndex = 2;
             this.heightUpDown.Value = new decimal(new int[] {
             3,
@@ -103,10 +103,9 @@
             // 
             this.widthLabel.AutoSize = true;
             this.widthLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.widthLabel.Location = new System.Drawing.Point(711, 920);
-            this.widthLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.widthLabel.Location = new System.Drawing.Point(474, 598);
             this.widthLabel.Name = "widthLabel";
-            this.widthLabel.Size = new System.Drawing.Size(60, 25);
+            this.widthLabel.Size = new System.Drawing.Size(39, 15);
             this.widthLabel.TabIndex = 3;
             this.widthLabel.Text = "Width";
             // 
@@ -114,41 +113,60 @@
             // 
             this.heightLabel.AutoSize = true;
             this.heightLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.heightLabel.Location = new System.Drawing.Point(836, 920);
-            this.heightLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.heightLabel.Location = new System.Drawing.Point(557, 598);
             this.heightLabel.Name = "heightLabel";
-            this.heightLabel.Size = new System.Drawing.Size(65, 25);
+            this.heightLabel.Size = new System.Drawing.Size(43, 15);
             this.heightLabel.TabIndex = 4;
             this.heightLabel.Text = "Height";
             // 
             // generateMazeButton
             // 
             this.generateMazeButton.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.generateMazeButton.Location = new System.Drawing.Point(112, 920);
-            this.generateMazeButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.generateMazeButton.Location = new System.Drawing.Point(75, 598);
             this.generateMazeButton.Name = "generateMazeButton";
-            this.generateMazeButton.Size = new System.Drawing.Size(225, 69);
+            this.generateMazeButton.Size = new System.Drawing.Size(150, 45);
             this.generateMazeButton.TabIndex = 5;
             this.generateMazeButton.Text = "Generate Maze";
             this.generateMazeButton.UseVisualStyleBackColor = true;
             this.generateMazeButton.Click += new System.EventHandler(this.generateMazeButton_Click);
             // 
-            // outputLabel
+            // seedLabel
             // 
-            this.outputLabel.AutoSize = true;
-            this.outputLabel.Location = new System.Drawing.Point(2, 0);
-            this.outputLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.outputLabel.Name = "outputLabel";
-            this.outputLabel.Size = new System.Drawing.Size(94, 20);
-            this.outputLabel.TabIndex = 6;
-            this.outputLabel.Text = "outputLabel";
+            this.seedLabel.AutoSize = true;
+            this.seedLabel.Location = new System.Drawing.Point(286, 8);
+            this.seedLabel.Name = "seedLabel";
+            this.seedLabel.Size = new System.Drawing.Size(35, 13);
+            this.seedLabel.TabIndex = 6;
+            this.seedLabel.Text = "Seed:";
+            // 
+            // seedTextBox
+            // 
+            this.seedTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.seedTextBox.Location = new System.Drawing.Point(327, 4);
+            this.seedTextBox.Name = "seedTextBox";
+            this.seedTextBox.Size = new System.Drawing.Size(100, 20);
+            this.seedTextBox.TabIndex = 7;
+            // 
+            // solveMazeButton
+            // 
+            this.solveMazeButton.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.solveMazeButton.Location = new System.Drawing.Point(231, 598);
+            this.solveMazeButton.Name = "solveMazeButton";
+            this.solveMazeButton.Size = new System.Drawing.Size(150, 45);
+            this.solveMazeButton.TabIndex = 9;
+            this.solveMazeButton.Text = "Solve Maze";
+            this.solveMazeButton.UseVisualStyleBackColor = true;
+            this.solveMazeButton.Click += new System.EventHandler(this.solveMazeButton_Click);
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1026, 1017);
-            this.Controls.Add(this.outputLabel);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(684, 661);
+            this.Controls.Add(this.solveMazeButton);
+            this.Controls.Add(this.seedTextBox);
+            this.Controls.Add(this.seedLabel);
             this.Controls.Add(this.generateMazeButton);
             this.Controls.Add(this.heightLabel);
             this.Controls.Add(this.widthLabel);
@@ -156,7 +174,6 @@
             this.Controls.Add(this.widthUpDown);
             this.Controls.Add(this.mazePanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -178,7 +195,9 @@
         private System.Windows.Forms.Label widthLabel;
         private System.Windows.Forms.Label heightLabel;
         private System.Windows.Forms.Button generateMazeButton;
-        private System.Windows.Forms.Label outputLabel;
+        private System.Windows.Forms.Label seedLabel;
+        private System.Windows.Forms.TextBox seedTextBox;
+        private System.Windows.Forms.Button solveMazeButton;
     }
 }
 

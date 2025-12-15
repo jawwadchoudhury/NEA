@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -9,9 +10,8 @@ namespace maze_nea
     public partial class Form1 : Form
     {
         Maze maze = new Maze(3, 3);
-        Pen pen = new Pen(Color.Black, 5);
+        Pen pen = new Pen(Color.Black, 4);
         Boolean isGenerating = false;
-
         public Form1()
         {
             InitializeComponent();
@@ -65,6 +65,7 @@ namespace maze_nea
             public int X { get; private set; }
             public int Y { get; private set; }
             public int Index { get; private set; }
+            public bool ExitNode { get; set; }
 
             public Node(int decimalValue)
             {
@@ -143,6 +144,13 @@ namespace maze_nea
             {
                 Index = index;
             }
+            public Boolean isKeyNode()
+            {
+                if (ExitNode) return true;
+                if (getWallCount() < 2) return true;
+                if (getWallCount() == 2 && !(getTopValue() && getBottomValue()) && !(getLeftValue() && getRightValue())) return true;
+                return false;
+            }
             public void Draw(Graphics g, int NodeSize, Pen Pen)
             {
                 if (((uint)DecimalValue & 1) == 1)
@@ -163,7 +171,19 @@ namespace maze_nea
                 }
             }
         }
+        public class Graph 
+        {
+            public Dictionary<int, List<int[]>> adjacencyList = new Dictionary<int, List<int[]>>();
 
+            public void addEdge(int startNodeIndex, int endNodeIndex, int weight)
+            {
+                if (!adjacencyList.ContainsKey(startNodeIndex))
+                {
+                    adjacencyList[startNodeIndex] = new List<int[]>();
+                }
+                adjacencyList[startNodeIndex].Add(new int[] { endNodeIndex, weight });
+            }
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
             generateEmptyMaze(maze.Width, maze.Height);
@@ -234,7 +254,7 @@ namespace maze_nea
             Random random = new Random();
             while (frontierIndexes.Count > 0)
             {
-                await Task.Delay(20);
+                await Task.Delay(5);
                 int frontierIndex = frontierIndexes[new Random().Next(0, frontierIndexes.Count)];
                 List<int> currentFrontiers = new List<int>();
                 int x = frontierIndex % maze.Width; // Column
@@ -275,7 +295,6 @@ namespace maze_nea
                                 return -1;
                         }
                     }
-
                     switch (getDirection(primaryIndex, frontierIndex))
                     {
                         case 0:
@@ -315,6 +334,8 @@ namespace maze_nea
                     int endNodeIndex = maze.Width * (maze.Height - 1) + random.Next(0, maze.Width);
                     maze.setEndNodeIndex(endNodeIndex);
                     maze.Nodes[endNodeIndex].removeBottomValue();
+                    maze.Nodes[endNodeIndex].ExitNode = true;
+                    maze.Nodes[startNodeIndex].ExitNode = true;
                     break;
                 case 1:
                     startNodeIndex = random.Next(0, maze.Height) * maze.Width + (maze.Width - 1);
@@ -323,18 +344,17 @@ namespace maze_nea
                     endNodeIndex = maze.Width * random.Next(0, maze.Height);
                     maze.setEndNodeIndex(endNodeIndex);
                     maze.Nodes[endNodeIndex].removeLeftValue();
+                    maze.Nodes[endNodeIndex].ExitNode = true;
+                    maze.Nodes[startNodeIndex].ExitNode = true;
                     break;
             }
             foreach (Control control in mazePanel.Controls)
             {
-                control.BackColor = DefaultBackColor;
+                control.BackColor = Color.White;
             }
             isGenerating = false;
-            widthUpDown.Enabled = true;
-            heightUpDown.Enabled = true;
-            generateMazeButton.Enabled = true;
+            setControls(true);
         }
-
         private void drawMaze()
         {
             mazePanel.Controls.Clear();
@@ -354,6 +374,137 @@ namespace maze_nea
                 mazePanel.Controls.Add(pictureBox);
             }
         }
+        private Graph generateGraph(int startingNodeIndex)
+        {
+            Graph graph = new Graph();
+            Stack<int> toVisit = new Stack<int>();
+            HashSet<int> visited = new HashSet<int>();
+            toVisit.Push(startingNodeIndex);
+            int[] bitmasks = new int[4] { 1, 2, 4, 8 }; // Up, Right, Down, Left
+            int[] offsets = new int[4] { -maze.Width, 1, maze.Width, -1 }; // Up, Right, Down, Left
+            while (toVisit.Count > 0)
+            {
+                int currentIndex = toVisit.Pop();
+                Node currentNode = maze.Nodes[currentIndex];
+                for (int direction = 0; direction < 4; direction++)
+                {
+                    if ((currentNode.DecimalValue & bitmasks[direction]) != 0) continue;
+                    int walkerIndex = currentIndex;
+                    int weight = 0;
+                    while (true)
+                    {
+                        if ((maze.Nodes[walkerIndex].DecimalValue & bitmasks[direction]) != 0) break;
+
+                        walkerIndex += offsets[direction];
+                        weight++;
+
+                        if (walkerIndex < 0 || walkerIndex >= maze.Nodes.Count) break; // Out of bounds
+
+                        Node walkerNode = maze.Nodes[walkerIndex];
+
+                        if (walkerNode.isKeyNode())
+                        {
+                            graph.addEdge(currentIndex, walkerIndex, weight);
+                            if (!visited.Contains(walkerIndex))
+                            {
+                                toVisit.Push(walkerIndex);
+                                visited.Add(walkerIndex);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            return graph;
+        }
+        private List<int> AStarPath(int startIndex, int endIndex)
+        {
+            Graph graph = generateGraph(startIndex);
+
+            // The set of currently discovered nodes that are not evaluated yet.
+            // We assume the start node is known.
+            List<int> openSet = new List<int> { startIndex };
+
+            // For node n, cameFrom[n] is the node immediately preceding it on the cheapest path
+            Dictionary<int, int> cameFrom = new Dictionary<int, int>();
+
+            // gScore[n] is the cost of the cheapest path from start to n.
+            Dictionary<int, int> gScore = new Dictionary<int, int>();
+            gScore[startIndex] = 0;
+
+            // fScore[n] := gScore[n] + h(n). Estimated total cost from start to goal through n.
+            Dictionary<int, int> fScore = new Dictionary<int, int>();
+            fScore[startIndex] = Heuristic(startIndex, endIndex);
+
+            // 2. The Loop
+            while (openSet.Count > 0)
+            {
+                // Find node in openSet with the lowest fScore
+                int current = openSet[0];
+                foreach (int nodeIndex in openSet)
+                {
+                    int score = fScore.ContainsKey(nodeIndex) ? fScore[nodeIndex] : int.MaxValue;
+                    int currentScore = fScore.ContainsKey(current) ? fScore[current] : int.MaxValue;
+                    if (score < currentScore) current = nodeIndex;
+                }
+
+                // Did we reach the goal?
+                if (current == endIndex)
+                {
+                    return ReconstructPath(cameFrom, current);
+                }
+
+                openSet.Remove(current);
+
+                // 3. Check Neighbors using your Graph Adjacency List
+                // Note: graph.adjacencyList might be private, you might need to make it public 
+                // or add a getter in your Graph class: public Dictionary<int, List<int[]>> GetAdjacencyList() { return adjacencyList; }
+
+                if (graph.adjacencyList.ContainsKey(current))
+                {
+                    foreach (int[] edge in graph.adjacencyList[current])
+                    {
+                        int neighbor = edge[0]; // The neighbor's index
+                        int weight = edge[1];   // The distance to that neighbor
+
+                        // tentative_gScore is the distance from start to the neighbor through current
+                        int tentative_gScore = gScore[current] + weight;
+
+                        int neighborGScore = gScore.ContainsKey(neighbor) ? gScore[neighbor] : int.MaxValue;
+
+                        if (tentative_gScore < neighborGScore)
+                        {
+                            // This path to neighbor is better than any previous one. Record it!
+                            cameFrom[neighbor] = current;
+                            gScore[neighbor] = tentative_gScore;
+                            fScore[neighbor] = gScore[neighbor] + Heuristic(neighbor, endIndex);
+
+                            if (!openSet.Contains(neighbor))
+                            {
+                                openSet.Add(neighbor);
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        private List<int> ReconstructPath(Dictionary<int, int> cameFrom, int current)
+        {
+            List<int> totalPath = new List<int> { current };
+            while (cameFrom.ContainsKey(current))
+            {
+                current = cameFrom[current];
+                totalPath.Insert(0, current); // Add to front
+            }
+            return totalPath;
+        }
+        private int Heuristic(int nodeIndexA, int nodeIndexB)
+        {
+            Node nodeA = maze.Nodes[nodeIndexA];
+            Node nodeB = maze.Nodes[nodeIndexB];
+            return Math.Abs(nodeA.X - nodeB.X) + Math.Abs(nodeA.Y - nodeB.Y);
+        }
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
             PictureBox pictureBox = (PictureBox)sender;
@@ -361,33 +512,39 @@ namespace maze_nea
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             node.Draw(e.Graphics, maze.NodeSize, pen);
         }
+        private void setControls(Boolean enabled)
+        {
+            widthUpDown.Enabled = enabled;
+            heightUpDown.Enabled = enabled;
+            generateMazeButton.Enabled = enabled;
+            seedTextBox.Enabled = enabled;
+            solveMazeButton.Enabled = enabled;
+        }
         private void generateMazeButton_Click(object sender, EventArgs e)
         {
-            if (!isGenerating) {
-                isGenerating = true;
-                widthUpDown.Enabled = false;
-                heightUpDown.Enabled = false;
-                generateMazeButton.Enabled = false;
-                generateEmptyMaze(maze.Width, maze.Height);
-                primsAlgorithm();
-            }
+            setControls(false);
+            generateEmptyMaze(maze.Width, maze.Height);
+            primsAlgorithm();
         }
 
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
-            if (!isGenerating)
-            {
-                maze.setWidth((int)widthUpDown.Value);
-                generateEmptyMaze(maze.Width, maze.Height);
-            }
+            maze.setWidth((int)widthUpDown.Value);
+            generateEmptyMaze(maze.Width, maze.Height);
         }
 
         private void heightUpDown_ValueChanged(object sender, EventArgs e)
         {
-            if (!isGenerating)
+            maze.setHeight((int)heightUpDown.Value);
+            generateEmptyMaze(maze.Width, maze.Height);
+        }
+
+        private void solveMazeButton_Click(object sender, EventArgs e)
+        {
+            List<int> path = AStarPath(maze.StartNodeIndex, maze.EndNodeIndex);
+            foreach (int index in path)
             {
-                maze.setHeight((int)heightUpDown.Value);
-                generateEmptyMaze(maze.Width, maze.Height);
+                mazePanel.Controls[index].BackColor = Color.LightBlue;
             }
         }
     }
