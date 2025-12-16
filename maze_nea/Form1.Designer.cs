@@ -37,6 +37,7 @@
             this.seedLabel = new System.Windows.Forms.Label();
             this.seedTextBox = new System.Windows.Forms.TextBox();
             this.solveMazeButton = new System.Windows.Forms.Button();
+            this.stepCountLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.heightUpDown)).BeginInit();
             this.SuspendLayout();
@@ -158,12 +159,25 @@
             this.solveMazeButton.UseVisualStyleBackColor = true;
             this.solveMazeButton.Click += new System.EventHandler(this.solveMazeButton_Click);
             // 
+            // stepCountLabel
+            // 
+            this.stepCountLabel.AutoSize = true;
+            this.stepCountLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.stepCountLabel.Location = new System.Drawing.Point(263, 644);
+            this.stepCountLabel.Name = "stepCountLabel";
+            this.stepCountLabel.Size = new System.Drawing.Size(90, 15);
+            this.stepCountLabel.TabIndex = 10;
+            this.stepCountLabel.Text = "Step Count: 999";
+            this.stepCountLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.stepCountLabel.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(684, 661);
+            this.Controls.Add(this.stepCountLabel);
             this.Controls.Add(this.solveMazeButton);
             this.Controls.Add(this.seedTextBox);
             this.Controls.Add(this.seedLabel);
@@ -198,6 +212,7 @@
         private System.Windows.Forms.Label seedLabel;
         private System.Windows.Forms.TextBox seedTextBox;
         private System.Windows.Forms.Button solveMazeButton;
+        private System.Windows.Forms.Label stepCountLabel;
     }
 }
 

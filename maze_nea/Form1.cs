@@ -254,7 +254,7 @@ namespace maze_nea
             Random random = new Random();
             while (frontierIndexes.Count > 0)
             {
-                await Task.Delay(5);
+                await Task.Delay(2);
                 int frontierIndex = frontierIndexes[new Random().Next(0, frontierIndexes.Count)];
                 List<int> currentFrontiers = new List<int>();
                 int x = frontierIndex % maze.Width; // Column
@@ -420,90 +420,74 @@ namespace maze_nea
         private List<int> AStarPath(int startIndex, int endIndex)
         {
             Graph graph = generateGraph(startIndex);
+            List<int> openList = new List<int>() { startIndex }; // Nodes that need to be evaluated
+            List<int> closedList = new List<int>(); // Evaluated nodes
+            Dictionary<int, int> gScores = new Dictionary<int, int>(); // Cost from start to current node
+            Dictionary<int, int> fScores = new Dictionary<int, int>(); // Estimated cost from start to end (via current node, calculated using gScore + Heuristic)
+            Dictionary<int, int> pathDictionary = new Dictionary<int, int>(); // To reconstruct the path
 
-            // The set of currently discovered nodes that are not evaluated yet.
-            // We assume the start node is known.
-            List<int> openSet = new List<int> { startIndex };
-
-            // For node n, cameFrom[n] is the node immediately preceding it on the cheapest path
-            Dictionary<int, int> cameFrom = new Dictionary<int, int>();
-
-            // gScore[n] is the cost of the cheapest path from start to n.
-            Dictionary<int, int> gScore = new Dictionary<int, int>();
-            gScore[startIndex] = 0;
-
-            // fScore[n] := gScore[n] + h(n). Estimated total cost from start to goal through n.
-            Dictionary<int, int> fScore = new Dictionary<int, int>();
-            fScore[startIndex] = Heuristic(startIndex, endIndex);
-
-            // 2. The Loop
-            while (openSet.Count > 0)
+            int Heuristic(int nodeAIndex, int nodeBIndex)
             {
-                // Find node in openSet with the lowest fScore
-                int current = openSet[0];
-                foreach (int nodeIndex in openSet)
+                Node nodeA = maze.Nodes[nodeAIndex];
+                Node nodeB = maze.Nodes[nodeBIndex];
+                return Math.Abs(nodeA.X - nodeB.X) + Math.Abs(nodeA.Y - nodeB.Y); // Manhattan distance (dx + dy)
+            }
+
+            while (openList.Count > 0)
+            {
+                int currentNodeIndex = openList[0];
+                int lowestScore = fScores.ContainsKey(currentNodeIndex) ? fScores[currentNodeIndex] : int.MaxValue; // Initialise with the fScore of the first node (int.MaxValue is kind of like infinity)
+                foreach (int index in openList) // This loop finds the node in openList with the lowest fScore (defined earlier)
                 {
-                    int score = fScore.ContainsKey(nodeIndex) ? fScore[nodeIndex] : int.MaxValue;
-                    int currentScore = fScore.ContainsKey(current) ? fScore[current] : int.MaxValue;
-                    if (score < currentScore) current = nodeIndex;
-                }
-
-                // Did we reach the goal?
-                if (current == endIndex)
-                {
-                    return ReconstructPath(cameFrom, current);
-                }
-
-                openSet.Remove(current);
-
-                // 3. Check Neighbors using your Graph Adjacency List
-                // Note: graph.adjacencyList might be private, you might need to make it public 
-                // or add a getter in your Graph class: public Dictionary<int, List<int[]>> GetAdjacencyList() { return adjacencyList; }
-
-                if (graph.adjacencyList.ContainsKey(current))
-                {
-                    foreach (int[] edge in graph.adjacencyList[current])
+                    int score = fScores.ContainsKey(index) ? fScores[index] : int.MaxValue;
+                    if (score < lowestScore)
                     {
-                        int neighbor = edge[0]; // The neighbor's index
-                        int weight = edge[1];   // The distance to that neighbor
+                        lowestScore = score;
+                        currentNodeIndex = index;
+                    }
+                }
 
-                        // tentative_gScore is the distance from start to the neighbor through current
-                        int tentative_gScore = gScore[current] + weight;
 
-                        int neighborGScore = gScore.ContainsKey(neighbor) ? gScore[neighbor] : int.MaxValue;
+                if (currentNodeIndex == endIndex) 
+                {
+                    List<int> totalPath = new List<int>();
+                    int temporaryIndex = currentNodeIndex;
+                    totalPath.Add(temporaryIndex);
+                    while (pathDictionary.ContainsKey(temporaryIndex)) // Backtrack through the path dictionary
+                    {
+                        temporaryIndex = pathDictionary[temporaryIndex];
+                        totalPath.Add(temporaryIndex);
+                    }
+                    totalPath.Reverse(); // Reverse the path (start to end)
+                    return totalPath;
+                }
 
-                        if (tentative_gScore < neighborGScore)
+                
+                openList.Remove(currentNodeIndex);
+                closedList.Add(currentNodeIndex); // Now fully evaluated the current node
+
+                foreach (int[] neighbour in graph.adjacencyList[currentNodeIndex]) // For each neighbour of the current node
+                {
+                    int neighbourIndex = neighbour[0];
+                    int weight = neighbour[1];
+                    {
+                        if (closedList.Contains(neighbourIndex)) continue; // If it's already evaluated, skip it
+
+                        int tentativeGScore = (gScores.ContainsKey(currentNodeIndex) ? gScores[currentNodeIndex] : 0) + weight;
+
+                        if (!openList.Contains(neighbourIndex)) openList.Add(neighbourIndex); // Add to open list if not already there (continue iteration)
+
+                        if (tentativeGScore < (gScores.ContainsKey(neighbourIndex) ? gScores[neighbourIndex] : int.MaxValue)) // If this path to neighbour is better than any previous one
                         {
-                            // This path to neighbor is better than any previous one. Record it!
-                            cameFrom[neighbor] = current;
-                            gScore[neighbor] = tentative_gScore;
-                            fScore[neighbor] = gScore[neighbor] + Heuristic(neighbor, endIndex);
-
-                            if (!openSet.Contains(neighbor))
-                            {
-                                openSet.Add(neighbor);
-                            }
+                            pathDictionary[neighbourIndex] = currentNodeIndex; // Record the best path
+                            gScores[neighbourIndex] = tentativeGScore; // Update gScore
+                            fScores[neighbourIndex] = tentativeGScore + Heuristic(neighbourIndex, endIndex); // Update fScore
                         }
                     }
                 }
             }
+
             return null;
-        }
-        private List<int> ReconstructPath(Dictionary<int, int> cameFrom, int current)
-        {
-            List<int> totalPath = new List<int> { current };
-            while (cameFrom.ContainsKey(current))
-            {
-                current = cameFrom[current];
-                totalPath.Insert(0, current); // Add to front
-            }
-            return totalPath;
-        }
-        private int Heuristic(int nodeIndexA, int nodeIndexB)
-        {
-            Node nodeA = maze.Nodes[nodeIndexA];
-            Node nodeB = maze.Nodes[nodeIndexB];
-            return Math.Abs(nodeA.X - nodeB.X) + Math.Abs(nodeA.Y - nodeB.Y);
         }
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
@@ -542,10 +526,42 @@ namespace maze_nea
         private void solveMazeButton_Click(object sender, EventArgs e)
         {
             List<int> path = AStarPath(maze.StartNodeIndex, maze.EndNodeIndex);
-            foreach (int index in path)
+
+            if (path != null && path.Count > 0)
             {
-                mazePanel.Controls[index].BackColor = Color.LightBlue;
+                int totalSteps = 2;
+                for (int i = 0; i < path.Count - 1; i++)
+                {
+                    Node nodeA = maze.Nodes[path[i]];     // Current node
+                    Node nodeB = maze.Nodes[path[i + 1]]; // Next node
+
+                    mazePanel.Controls[nodeA.Index].BackColor = Color.LightBlue; // Colour the start node
+
+                    totalSteps += Math.Abs(nodeB.X - nodeA.X) + Math.Abs(nodeB.Y - nodeA.Y); // Distance between the two nodes (weight)
+
+                    // Returns -1, 0 or 1 depending on the sign of the difference
+                    int dx = Math.Sign(nodeB.X - nodeA.X);
+                    int dy = Math.Sign(nodeB.Y - nodeA.Y);
+
+                    int currentX = nodeA.X;
+                    int currentY = nodeA.Y;
+
+                    while (currentX != nodeB.X || currentY != nodeB.Y) // Keep walking until co-ordinates for the next node is reached
+                    {
+                        currentX += dx;
+                        currentY += dy;
+
+                        int stepIndex = currentY * maze.Width + currentX;
+                        mazePanel.Controls[stepIndex].BackColor = Color.LightBlue;
+                    }
+                }
+
+                // 6. Ensure the final End Node is colored
+                mazePanel.Controls[path[path.Count - 1]].BackColor = Color.LightBlue;
+                stepCountLabel.Visible = true;
+                stepCountLabel.Text = "Steps: " + totalSteps.ToString();
             }
+            
         }
     }
 }
