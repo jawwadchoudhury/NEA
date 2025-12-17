@@ -11,6 +11,7 @@ namespace maze_nea
     {
         Maze maze = new Maze(3, 3);
         Pen pen = new Pen(Color.Black, 4);
+        bool isGenerating = false;
         public Form1()
         {
             InitializeComponent();
