@@ -395,6 +395,12 @@ namespace maze_nea
                     {
                         if ((maze.Nodes[walkerIndex].DecimalValue & bitmasks[direction]) != 0) break;
 
+                        int walkerX = walkerIndex % maze.Width;
+
+                        if (direction == 1 && walkerX == maze.Width - 1) break; // Prevent wrapping r to l
+
+                        if (direction == 3 && walkerX == 0) break; // Prevent wrapping l to r
+
                         walkerIndex += offsets[direction];
                         weight++;
 
@@ -507,6 +513,7 @@ namespace maze_nea
         private void generateMazeButton_Click(object sender, EventArgs e)
         {
             setControls(false);
+            stepCountLabel.Visible = false;
             generateEmptyMaze(maze.Width, maze.Height);
             primsAlgorithm();
         }
@@ -555,9 +562,8 @@ namespace maze_nea
                         mazePanel.Controls[stepIndex].BackColor = Color.LightBlue;
                     }
                 }
-
-                // 6. Ensure the final End Node is colored
-                mazePanel.Controls[path[path.Count - 1]].BackColor = Color.LightBlue;
+                
+                mazePanel.Controls[path[path.Count - 1]].BackColor = Color.LightBlue; // Colour the end node
                 stepCountLabel.Visible = true;
                 stepCountLabel.Text = "Steps: " + totalSteps.ToString();
             }
