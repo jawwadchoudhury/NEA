@@ -11,7 +11,6 @@ namespace maze_nea
     {
         Maze maze = new Maze(3, 3);
         Pen pen = new Pen(Color.Black, 4);
-        Boolean isGenerating = false;
         public Form1()
         {
             InitializeComponent();
@@ -188,7 +187,6 @@ namespace maze_nea
         {
             generateEmptyMaze(maze.Width, maze.Height);
         }
-
         private void generateEmptyMaze(int width, int height)
         {
             maze.clearNodes();
@@ -517,19 +515,16 @@ namespace maze_nea
             generateEmptyMaze(maze.Width, maze.Height);
             primsAlgorithm();
         }
-
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
             maze.setWidth((int)widthUpDown.Value);
             generateEmptyMaze(maze.Width, maze.Height);
         }
-
         private void heightUpDown_ValueChanged(object sender, EventArgs e)
         {
             maze.setHeight((int)heightUpDown.Value);
             generateEmptyMaze(maze.Width, maze.Height);
         }
-
         private void solveMazeButton_Click(object sender, EventArgs e)
         {
             List<int> path = AStarPath(maze.StartNodeIndex, maze.EndNodeIndex);
