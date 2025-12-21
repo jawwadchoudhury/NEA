@@ -25,6 +25,7 @@ namespace maze_nea
             public int NodeSize { get; private set; }
             public int StartNodeIndex { get; private set; }
             public int EndNodeIndex { get; private set; }
+            public bool Generated { get; private set; } = false;
             public Maze(int width, int height)
             {
                 Width = width;
@@ -57,6 +58,11 @@ namespace maze_nea
             public void setStartNodeIndex(int startNodeIndex)
             {
                 StartNodeIndex = startNodeIndex;
+            }
+
+            public void setGenerated(bool generated)
+            {
+                Generated = generated;
             }
         }
         public class Node
@@ -251,6 +257,7 @@ namespace maze_nea
             refreshColours();
 
             Random random = new Random();
+            // Iterate Prim's
             while (frontierIndexes.Count > 0)
             {
                 await Task.Delay(2);
@@ -347,11 +354,62 @@ namespace maze_nea
                     maze.Nodes[startNodeIndex].ExitNode = true;
                     break;
             }
+            //Block to remove ~5% of walls
+            for (int i = 0; i < (maze.Width * maze.Height) / 20; i++)
+            {
+                int randomNodeIndex = random.Next(0, maze.Nodes.Count);
+                int x = randomNodeIndex % maze.Width; // Column
+                int y = randomNodeIndex / maze.Width; // Row
+                List<int> possibleDirections = new List<int>();
+
+                if (y != 0 && maze.Nodes[randomNodeIndex].getTopValue())
+                {
+                    possibleDirections.Add(0);
+                }
+                if (x != maze.Width - 1 && maze.Nodes[randomNodeIndex].getRightValue())
+                {
+                    possibleDirections.Add(1);
+                }
+                if (y != maze.Height - 1 && maze.Nodes[randomNodeIndex].getBottomValue())
+                {
+                    possibleDirections.Add(2);
+                }
+                if (x != 0 && maze.Nodes[randomNodeIndex].getLeftValue())
+                {
+                    possibleDirections.Add(3);
+                }
+
+                if (possibleDirections.Count > 0)
+                {
+                    int direction = possibleDirections[random.Next(0, possibleDirections.Count)];
+                    switch (direction)
+                    {
+                        case 0:
+                            maze.Nodes[randomNodeIndex].removeTopValue();
+                            maze.Nodes[randomNodeIndex - maze.Width].removeBottomValue();
+                            break;
+                        case 1:
+                            maze.Nodes[randomNodeIndex].removeRightValue();
+                            maze.Nodes[randomNodeIndex + 1].removeLeftValue();
+                            break;
+                        case 2:
+                            maze.Nodes[randomNodeIndex].removeBottomValue();
+                            maze.Nodes[randomNodeIndex + maze.Width].removeTopValue();
+                            break;
+                        case 3:
+                            maze.Nodes[randomNodeIndex].removeLeftValue();
+                            maze.Nodes[randomNodeIndex - 1].removeRightValue();
+                            break;
+                    }
+                }
+            }
+            //Set colours back to default
             foreach (Control control in mazePanel.Controls)
             {
                 control.BackColor = Color.White;
             }
             isGenerating = false;
+            maze.setGenerated(true);
             setControls(true);
         }
         private void drawMaze()
@@ -519,18 +577,20 @@ namespace maze_nea
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
             maze.setWidth((int)widthUpDown.Value);
+            stepCountLabel.Visible = false;
             generateEmptyMaze(maze.Width, maze.Height);
         }
         private void heightUpDown_ValueChanged(object sender, EventArgs e)
         {
             maze.setHeight((int)heightUpDown.Value);
+            stepCountLabel.Visible = false;
             generateEmptyMaze(maze.Width, maze.Height);
         }
         private void solveMazeButton_Click(object sender, EventArgs e)
         {
             List<int> path = AStarPath(maze.StartNodeIndex, maze.EndNodeIndex);
-
-            if (path != null && path.Count > 0)
+           
+            if (path != null && path.Count > 0 && maze.Generated)
             {
                 int totalSteps = 2;
                 for (int i = 0; i < path.Count - 1; i++)
