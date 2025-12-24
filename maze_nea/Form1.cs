@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -26,6 +27,7 @@ namespace maze_nea
             public int StartNodeIndex { get; private set; }
             public int EndNodeIndex { get; private set; }
             public bool Generated { get; private set; } = false;
+            public string Code { get; private set; }
             public Maze(int width, int height)
             {
                 Width = width;
@@ -59,10 +61,14 @@ namespace maze_nea
             {
                 StartNodeIndex = startNodeIndex;
             }
-
             public void setGenerated(bool generated)
             {
                 Generated = generated;
+            }
+
+            public void setCode(string code)
+            {
+                Code = code;
             }
         }
         public class Node
@@ -197,7 +203,7 @@ namespace maze_nea
         private void generateEmptyMaze(int width, int height)
         {
             maze.clearNodes();
-            maze.setNodeSize(Math.Min(540 / width, 540 / height));
+            maze.setNodeSize(Math.Min(515 / width, 515 / height));
             for (int i = 0; i < width * height; i++)
             {
                 Node node = new Node(15);
@@ -207,6 +213,91 @@ namespace maze_nea
                 maze.addNode(node);
             }
             drawMaze();
+        }
+
+        private void LoadMazeFromCode(string code)
+        {
+            try
+            {
+                if (code.Length < 10)
+                {
+                    MessageBox.Show("Code is too short! Please try again.");
+                    return;
+                }
+
+                int width = code[0] - 65;
+                int height = code[1] - 65;
+                int startNodeIndex = int.Parse(code.Substring(2, 3));
+                int endNodeIndex = int.Parse(code.Substring(5, 3));
+                if (width < 3 || height < 3 || width > 25 || height > 25 || startNodeIndex < 0 || endNodeIndex < 0 ||
+                    startNodeIndex >= width * height || endNodeIndex >= width * height)
+                {
+                    MessageBox.Show("Invalid Code");
+                    return;
+                }
+                else
+                {
+                    widthUpDown.Value = width;
+                    heightUpDown.Value = height;
+                }
+
+                maze.setWidth(width);
+                maze.setHeight(height);
+                maze.setStartNodeIndex(startNodeIndex);
+                maze.setEndNodeIndex(endNodeIndex);
+
+                generateEmptyMaze(width, height);
+
+                int currentNodeIndex = 0;
+                string numberBuffer = "";
+
+                // 8th character index begins from after the headers
+                for (int i = 8; i < code.Length; i++)
+                {
+                    char c = code[i];
+
+                    if (char.IsDigit(c))
+                    {
+                        numberBuffer += c;
+                    }
+                    else
+                    {
+                        int decimalValue = c - 65;
+
+                        int repeatCount = (numberBuffer == "") ? 1 : int.Parse(numberBuffer); // If the buffers empty, it means the count is 1
+
+                        for (int j = 0; j < repeatCount; j++)
+                        {
+                            if (currentNodeIndex < maze.Nodes.Count)
+                            {
+                                Node node = maze.Nodes[currentNodeIndex];
+                                node.setDecimalValue(decimalValue);
+
+                                if (currentNodeIndex == startNodeIndex || currentNodeIndex == endNodeIndex)
+                                {
+                                    node.ExitNode = true;
+                                }
+
+                                currentNodeIndex++;
+                            }
+                        }
+
+                        // IMPORTANT: Clear the buffer for the next run
+                        numberBuffer = "";
+                    }
+                }
+
+                foreach (Control control in mazePanel.Controls)
+                {
+                    control.BackColor = Color.White;
+                }
+                mazePanel.Refresh();
+                maze.setGenerated(true);
+            } catch (Exception e)
+            {
+                codeTextBox.Clear();
+                MessageBox.Show("An error occurred while loading the maze: " + e.Message);
+            }
         }
         private async void primsAlgorithm()
         {
@@ -411,6 +502,34 @@ namespace maze_nea
             isGenerating = false;
             maze.setGenerated(true);
             setControls(true);
+
+            StringBuilder code = new StringBuilder(maze.Height * maze.Width);
+            code.Append(Convert.ToChar(maze.Width + 65));
+            code.Append(Convert.ToChar(maze.Height + 65));
+            code.Append(maze.StartNodeIndex.ToString().PadLeft(3, '0'));
+            code.Append(maze.EndNodeIndex.ToString().PadLeft(3, '0'));
+            int repeatCount = 1;
+            char previousChar = Convert.ToChar(maze.Nodes[0].DecimalValue + 65);
+
+            for (int i = 1; i < maze.Nodes.Count; i++)
+            {
+                char currentChar = Convert.ToChar(maze.Nodes[i].DecimalValue + 65);
+                if (currentChar == previousChar)
+                {
+                    repeatCount++;
+                }
+                else
+                {
+                    if (repeatCount > 1) code.Append(repeatCount);
+                    code.Append(previousChar);
+                    previousChar = currentChar;
+                    repeatCount = 1;
+                }
+            }
+            if (repeatCount > 1) code.Append(repeatCount);
+            code.Append(previousChar);
+            maze.setCode(code.ToString());
+            codeTextBox.Text = code.ToString();
         }
         private void drawMaze()
         {
@@ -564,13 +683,14 @@ namespace maze_nea
             widthUpDown.Enabled = enabled;
             heightUpDown.Enabled = enabled;
             generateMazeButton.Enabled = enabled;
-            seedTextBox.Enabled = enabled;
+            codeTextBox.Enabled = enabled;
             solveMazeButton.Enabled = enabled;
         }
         private void generateMazeButton_Click(object sender, EventArgs e)
         {
             setControls(false);
             stepCountLabel.Visible = false;
+            codeTextBox.Clear();
             generateEmptyMaze(maze.Width, maze.Height);
             primsAlgorithm();
         }
@@ -624,6 +744,23 @@ namespace maze_nea
                 stepCountLabel.Text = "Steps: " + totalSteps.ToString();
             }
             
+        }
+
+        private void generateMazeFromCodeButton_Click(object sender, EventArgs e)
+        {
+            if (codeTextBox.Text.Length > 0)
+            {
+                LoadMazeFromCode(codeTextBox.Text);
+            }
+        }
+
+        private void exportMazeButton_Click(object sender, EventArgs e)
+        {
+            if (codeTextBox.Text.Length > 0)
+            {
+                Clipboard.SetText(codeTextBox.Text);
+                MessageBox.Show("Code copied to clipboard!");
+            }
         }
     }
 }

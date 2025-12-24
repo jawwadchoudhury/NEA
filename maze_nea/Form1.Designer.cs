@@ -34,10 +34,12 @@
             this.widthLabel = new System.Windows.Forms.Label();
             this.heightLabel = new System.Windows.Forms.Label();
             this.generateMazeButton = new System.Windows.Forms.Button();
-            this.seedLabel = new System.Windows.Forms.Label();
-            this.seedTextBox = new System.Windows.Forms.TextBox();
+            this.codeLabel = new System.Windows.Forms.Label();
+            this.codeTextBox = new System.Windows.Forms.TextBox();
             this.solveMazeButton = new System.Windows.Forms.Button();
             this.stepCountLabel = new System.Windows.Forms.Label();
+            this.importMazeButton = new System.Windows.Forms.Button();
+            this.exportMazeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.heightUpDown)).BeginInit();
             this.SuspendLayout();
@@ -45,9 +47,9 @@
             // mazePanel
             // 
             this.mazePanel.BackColor = System.Drawing.Color.White;
-            this.mazePanel.Location = new System.Drawing.Point(75, 30);
+            this.mazePanel.Location = new System.Drawing.Point(90, 55);
             this.mazePanel.Name = "mazePanel";
-            this.mazePanel.Size = new System.Drawing.Size(550, 550);
+            this.mazePanel.Size = new System.Drawing.Size(525, 525);
             this.mazePanel.TabIndex = 0;
             // 
             // widthUpDown
@@ -127,26 +129,26 @@
             this.generateMazeButton.Name = "generateMazeButton";
             this.generateMazeButton.Size = new System.Drawing.Size(150, 45);
             this.generateMazeButton.TabIndex = 5;
-            this.generateMazeButton.Text = "Generate Maze";
+            this.generateMazeButton.Text = "Generate New Maze";
             this.generateMazeButton.UseVisualStyleBackColor = true;
             this.generateMazeButton.Click += new System.EventHandler(this.generateMazeButton_Click);
             // 
-            // seedLabel
+            // codeLabel
             // 
-            this.seedLabel.AutoSize = true;
-            this.seedLabel.Location = new System.Drawing.Point(286, 8);
-            this.seedLabel.Name = "seedLabel";
-            this.seedLabel.Size = new System.Drawing.Size(35, 13);
-            this.seedLabel.TabIndex = 6;
-            this.seedLabel.Text = "Seed:";
+            this.codeLabel.AutoSize = true;
+            this.codeLabel.Location = new System.Drawing.Point(267, 10);
+            this.codeLabel.Name = "codeLabel";
+            this.codeLabel.Size = new System.Drawing.Size(35, 13);
+            this.codeLabel.TabIndex = 6;
+            this.codeLabel.Text = "Code:";
             // 
-            // seedTextBox
+            // codeTextBox
             // 
-            this.seedTextBox.BackColor = System.Drawing.SystemColors.Window;
-            this.seedTextBox.Location = new System.Drawing.Point(327, 4);
-            this.seedTextBox.Name = "seedTextBox";
-            this.seedTextBox.Size = new System.Drawing.Size(100, 20);
-            this.seedTextBox.TabIndex = 7;
+            this.codeTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.codeTextBox.Location = new System.Drawing.Point(304, 6);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Size = new System.Drawing.Size(128, 20);
+            this.codeTextBox.TabIndex = 7;
             // 
             // solveMazeButton
             // 
@@ -171,16 +173,40 @@
             this.stepCountLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.stepCountLabel.Visible = false;
             // 
+            // importMazeButton
+            // 
+            this.importMazeButton.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            this.importMazeButton.Location = new System.Drawing.Point(266, 29);
+            this.importMazeButton.Name = "importMazeButton";
+            this.importMazeButton.Size = new System.Drawing.Size(80, 20);
+            this.importMazeButton.TabIndex = 12;
+            this.importMazeButton.Text = "Import";
+            this.importMazeButton.UseVisualStyleBackColor = true;
+            this.importMazeButton.Click += new System.EventHandler(this.generateMazeFromCodeButton_Click);
+            // 
+            // exportMazeButton
+            // 
+            this.exportMazeButton.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            this.exportMazeButton.Location = new System.Drawing.Point(352, 29);
+            this.exportMazeButton.Name = "exportMazeButton";
+            this.exportMazeButton.Size = new System.Drawing.Size(80, 20);
+            this.exportMazeButton.TabIndex = 13;
+            this.exportMazeButton.Text = "Export";
+            this.exportMazeButton.UseVisualStyleBackColor = true;
+            this.exportMazeButton.Click += new System.EventHandler(this.exportMazeButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(684, 661);
+            this.Controls.Add(this.exportMazeButton);
+            this.Controls.Add(this.importMazeButton);
             this.Controls.Add(this.stepCountLabel);
             this.Controls.Add(this.solveMazeButton);
-            this.Controls.Add(this.seedTextBox);
-            this.Controls.Add(this.seedLabel);
+            this.Controls.Add(this.codeTextBox);
+            this.Controls.Add(this.codeLabel);
             this.Controls.Add(this.generateMazeButton);
             this.Controls.Add(this.heightLabel);
             this.Controls.Add(this.widthLabel);
@@ -209,10 +235,12 @@
         private System.Windows.Forms.Label widthLabel;
         private System.Windows.Forms.Label heightLabel;
         private System.Windows.Forms.Button generateMazeButton;
-        private System.Windows.Forms.Label seedLabel;
-        private System.Windows.Forms.TextBox seedTextBox;
+        private System.Windows.Forms.Label codeLabel;
+        private System.Windows.Forms.TextBox codeTextBox;
         private System.Windows.Forms.Button solveMazeButton;
         private System.Windows.Forms.Label stepCountLabel;
+        private System.Windows.Forms.Button importMazeButton;
+        private System.Windows.Forms.Button exportMazeButton;
     }
 }
 
