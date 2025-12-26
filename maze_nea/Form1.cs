@@ -183,7 +183,7 @@ namespace maze_nea
                 }
             }
         }
-        public class Graph 
+        public class Graph
         {
             public Dictionary<int, List<int[]>> adjacencyList = new Dictionary<int, List<int[]>>();
 
@@ -294,7 +294,8 @@ namespace maze_nea
                 }
                 mazePanel.Refresh();
                 maze.setGenerated(true);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 MessageBox.Show("An error occurred while loading the maze: " + e.Message);
             }
@@ -643,7 +644,7 @@ namespace maze_nea
                 }
 
 
-                if (currentNodeIndex == endIndex) 
+                if (currentNodeIndex == endIndex)
                 {
                     List<int> totalPath = new List<int>();
                     int temporaryIndex = currentNodeIndex;
@@ -657,7 +658,7 @@ namespace maze_nea
                     return totalPath;
                 }
 
-                
+
                 openList.Remove(currentNodeIndex);
                 closedList.Add(currentNodeIndex); // Now fully evaluated the current node
 
@@ -725,7 +726,7 @@ namespace maze_nea
         private void solveMazeButton_Click(object sender, EventArgs e)
         {
             List<int> path = AStarPath(maze.StartNodeIndex, maze.EndNodeIndex);
-           
+
             if (path != null && path.Count > 0 && maze.Generated)
             {
                 int totalSteps = 2;
@@ -754,12 +755,12 @@ namespace maze_nea
                         mazePanel.Controls[stepIndex].BackColor = Color.LightBlue;
                     }
                 }
-                
+
                 mazePanel.Controls[path[path.Count - 1]].BackColor = Color.LightBlue; // Colour the end node
                 stepCountLabel.Visible = true;
                 stepCountLabel.Text = "Steps: " + totalSteps.ToString();
             }
-            
+
         }
         private void importMazeButton_Click(object sender, EventArgs e)
         {
