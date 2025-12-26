@@ -215,7 +215,6 @@ namespace maze_nea
             }
             drawMaze();
         }
-
         private void LoadMazeFromCode(string code)
         {
             try
@@ -797,7 +796,6 @@ namespace maze_nea
                 stream.Close();
             }
         }
-
         private void exportAsImageButton_Click(object sender, EventArgs e)
         {
             if (!maze.Generated)
