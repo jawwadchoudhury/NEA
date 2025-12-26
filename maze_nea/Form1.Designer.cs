@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.mazePanel = new System.Windows.Forms.Panel();
             this.widthUpDown = new System.Windows.Forms.NumericUpDown();
             this.heightUpDown = new System.Windows.Forms.NumericUpDown();
@@ -240,10 +241,11 @@
             this.Controls.Add(this.widthUpDown);
             this.Controls.Add(this.mazePanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Maze NEA";
+            this.Text = "Maze Generator";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).EndInit();
