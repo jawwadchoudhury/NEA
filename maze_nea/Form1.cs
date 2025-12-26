@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,7 +13,6 @@ namespace maze_nea
     {
         Maze maze = new Maze(3, 3);
         Pen pen = new Pen(Color.Black, 4);
-        bool isGenerating = false;
         public Form1()
         {
             InitializeComponent();
@@ -203,7 +203,8 @@ namespace maze_nea
         private void generateEmptyMaze(int width, int height)
         {
             maze.clearNodes();
-            maze.setNodeSize(Math.Min(515 / width, 515 / height));
+            int nodeCount = width * height;
+            maze.setNodeSize(Math.Min(540 / width, 540 / height));
             for (int i = 0; i < width * height; i++)
             {
                 Node node = new Node(15);
@@ -221,7 +222,7 @@ namespace maze_nea
             {
                 if (code.Length < 10)
                 {
-                    MessageBox.Show("Code is too short! Please try again.");
+                    MessageBox.Show("Code is invalid!");
                     return;
                 }
 
@@ -232,7 +233,7 @@ namespace maze_nea
                 if (width < 3 || height < 3 || width > 25 || height > 25 || startNodeIndex < 0 || endNodeIndex < 0 ||
                     startNodeIndex >= width * height || endNodeIndex >= width * height)
                 {
-                    MessageBox.Show("Invalid Code");
+                    MessageBox.Show("Code is invalid!");
                     return;
                 }
                 else
@@ -295,11 +296,10 @@ namespace maze_nea
                 maze.setGenerated(true);
             } catch (Exception e)
             {
-                codeTextBox.Clear();
                 MessageBox.Show("An error occurred while loading the maze: " + e.Message);
             }
         }
-        private async void primsAlgorithm()
+        private async void primsAlgorithm(int wallsToRemovePercent)
         {
             int startIndex = new Random().Next(0, maze.Nodes.Count);
             List<int> primaryIndexes = new List<int>();
@@ -445,52 +445,55 @@ namespace maze_nea
                     maze.Nodes[startNodeIndex].ExitNode = true;
                     break;
             }
-            //Block to remove ~5% of walls
-            for (int i = 0; i < (maze.Width * maze.Height) / 20; i++)
+            //Block to remove ~x% of walls
+            if (wallsToRemovePercent != 0) // Makes sure it doesn't attempt to divide by 0, otherwise there'll be an error
             {
-                int randomNodeIndex = random.Next(0, maze.Nodes.Count);
-                int x = randomNodeIndex % maze.Width; // Column
-                int y = randomNodeIndex / maze.Width; // Row
-                List<int> possibleDirections = new List<int>();
+                for (int i = 0; i < (maze.Width * maze.Height) / (100 / wallsToRemovePercent); i++)
+                {
+                    int randomNodeIndex = random.Next(0, maze.Nodes.Count);
+                    int x = randomNodeIndex % maze.Width; // Column
+                    int y = randomNodeIndex / maze.Width; // Row
+                    List<int> possibleDirections = new List<int>();
 
-                if (y != 0 && maze.Nodes[randomNodeIndex].getTopValue())
-                {
-                    possibleDirections.Add(0);
-                }
-                if (x != maze.Width - 1 && maze.Nodes[randomNodeIndex].getRightValue())
-                {
-                    possibleDirections.Add(1);
-                }
-                if (y != maze.Height - 1 && maze.Nodes[randomNodeIndex].getBottomValue())
-                {
-                    possibleDirections.Add(2);
-                }
-                if (x != 0 && maze.Nodes[randomNodeIndex].getLeftValue())
-                {
-                    possibleDirections.Add(3);
-                }
-
-                if (possibleDirections.Count > 0)
-                {
-                    int direction = possibleDirections[random.Next(0, possibleDirections.Count)];
-                    switch (direction)
+                    if (y != 0 && maze.Nodes[randomNodeIndex].getTopValue())
                     {
-                        case 0:
-                            maze.Nodes[randomNodeIndex].removeTopValue();
-                            maze.Nodes[randomNodeIndex - maze.Width].removeBottomValue();
-                            break;
-                        case 1:
-                            maze.Nodes[randomNodeIndex].removeRightValue();
-                            maze.Nodes[randomNodeIndex + 1].removeLeftValue();
-                            break;
-                        case 2:
-                            maze.Nodes[randomNodeIndex].removeBottomValue();
-                            maze.Nodes[randomNodeIndex + maze.Width].removeTopValue();
-                            break;
-                        case 3:
-                            maze.Nodes[randomNodeIndex].removeLeftValue();
-                            maze.Nodes[randomNodeIndex - 1].removeRightValue();
-                            break;
+                        possibleDirections.Add(0);
+                    }
+                    if (x != maze.Width - 1 && maze.Nodes[randomNodeIndex].getRightValue())
+                    {
+                        possibleDirections.Add(1);
+                    }
+                    if (y != maze.Height - 1 && maze.Nodes[randomNodeIndex].getBottomValue())
+                    {
+                        possibleDirections.Add(2);
+                    }
+                    if (x != 0 && maze.Nodes[randomNodeIndex].getLeftValue())
+                    {
+                        possibleDirections.Add(3);
+                    }
+
+                    if (possibleDirections.Count > 0)
+                    {
+                        int direction = possibleDirections[random.Next(0, possibleDirections.Count)];
+                        switch (direction)
+                        {
+                            case 0:
+                                maze.Nodes[randomNodeIndex].removeTopValue();
+                                maze.Nodes[randomNodeIndex - maze.Width].removeBottomValue();
+                                break;
+                            case 1:
+                                maze.Nodes[randomNodeIndex].removeRightValue();
+                                maze.Nodes[randomNodeIndex + 1].removeLeftValue();
+                                break;
+                            case 2:
+                                maze.Nodes[randomNodeIndex].removeBottomValue();
+                                maze.Nodes[randomNodeIndex + maze.Width].removeTopValue();
+                                break;
+                            case 3:
+                                maze.Nodes[randomNodeIndex].removeLeftValue();
+                                maze.Nodes[randomNodeIndex - 1].removeRightValue();
+                                break;
+                        }
                     }
                 }
             }
@@ -499,7 +502,6 @@ namespace maze_nea
             {
                 control.BackColor = Color.White;
             }
-            isGenerating = false;
             maze.setGenerated(true);
             setControls(true);
 
@@ -529,7 +531,7 @@ namespace maze_nea
             if (repeatCount > 1) code.Append(repeatCount);
             code.Append(previousChar);
             maze.setCode(code.ToString());
-            codeTextBox.Text = code.ToString();
+            maze.setGenerated(true);
         }
         private void drawMaze()
         {
@@ -537,7 +539,18 @@ namespace maze_nea
             int nodeSize = maze.NodeSize;
             int mazeWidth = maze.Width * nodeSize;
             int mazeHeight = maze.Height * nodeSize;
-            mazePanel.Size = new Size(mazeWidth, mazeHeight);
+            switch (nodeSize)
+            {
+                case int n when (n >= 40):
+                    pen.Width = 7;
+                    break;
+                case int n when (n >= 30):
+                    pen.Width = 5;
+                    break;
+                default:
+                    pen.Width = 4;
+                    break;
+            }
             for (int i = 0; i < maze.Nodes.Count; i++)
             {
                 Node node = maze.Nodes[i];
@@ -683,16 +696,19 @@ namespace maze_nea
             widthUpDown.Enabled = enabled;
             heightUpDown.Enabled = enabled;
             generateMazeButton.Enabled = enabled;
-            codeTextBox.Enabled = enabled;
             solveMazeButton.Enabled = enabled;
+            importMazeButton.Enabled = enabled;
+            exportMazeButton.Enabled = enabled;
+            wallsRemovedUpDown.Enabled = enabled;
+            exportAsImageButton.Enabled = enabled;
         }
         private void generateMazeButton_Click(object sender, EventArgs e)
         {
             setControls(false);
+            maze.setGenerated(false);
             stepCountLabel.Visible = false;
-            codeTextBox.Clear();
             generateEmptyMaze(maze.Width, maze.Height);
-            primsAlgorithm();
+            primsAlgorithm((int)wallsRemovedUpDown.Value);
         }
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
@@ -745,21 +761,70 @@ namespace maze_nea
             }
             
         }
-
-        private void generateMazeFromCodeButton_Click(object sender, EventArgs e)
+        private void importMazeButton_Click(object sender, EventArgs e)
         {
-            if (codeTextBox.Text.Length > 0)
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Maze Files|*.maze";
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                LoadMazeFromCode(codeTextBox.Text);
+                Stream stream = fileDialog.OpenFile();
+                StreamReader streamReader = new StreamReader(stream);
+                string code = streamReader.ReadToEnd();
+                streamReader.Close();
+                stream.Close();
+                LoadMazeFromCode(code);
+            }
+        }
+        private void exportMazeButton_Click(object sender, EventArgs e)
+        {
+            if (!maze.Generated)
+            {
+                MessageBox.Show("There is no maze to export!");
+                return;
+            }
+            SaveFileDialog fileDialog = new SaveFileDialog();
+            fileDialog.Filter = "Maze Files|*.maze";
+            DateTime now = DateTime.Now;
+            fileDialog.FileName = $"{now.Day.ToString().PadLeft(2, '0')}-{now.Month.ToString().PadLeft(2, '0')}-{now.Year}_{now.Hour.ToString().PadLeft(2, '0')}-{now.Minute.ToString().PadLeft(2, '0')}-{now.Second.ToString().PadLeft(2, '0')}_{maze.Width}x{maze.Height}";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                Stream stream = fileDialog.OpenFile();
+                StreamWriter streamWriter = new StreamWriter(stream);
+                streamWriter.Write(maze.Code);
+                streamWriter.Close();
+                stream.Close();
             }
         }
 
-        private void exportMazeButton_Click(object sender, EventArgs e)
+        private void exportAsImageButton_Click(object sender, EventArgs e)
         {
-            if (codeTextBox.Text.Length > 0)
+            if (!maze.Generated)
             {
-                Clipboard.SetText(codeTextBox.Text);
-                MessageBox.Show("Code copied to clipboard!");
+                MessageBox.Show("There is no maze to export!");
+                return;
+            }
+            SaveFileDialog fileDialog = new SaveFileDialog();
+            fileDialog.Filter = "PNG Image|*.png";
+            DateTime now = DateTime.Now;
+            fileDialog.FileName = $"{now.Day.ToString().PadLeft(2, '0')}-{now.Month.ToString().PadLeft(2, '0')}-{now.Year}_{now.Hour.ToString().PadLeft(2, '0')}-{now.Minute.ToString().PadLeft(2, '0')}-{now.Second.ToString().PadLeft(2, '0')}_{maze.Width}x{maze.Height}";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                int imageWidth = maze.Width * maze.NodeSize;
+                int imageHeight = maze.Height * maze.NodeSize;
+                Bitmap bitmap = new Bitmap(imageWidth, imageHeight);
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    g.Clear(Color.Transparent);
+                    foreach (Node node in maze.Nodes)
+                    {
+                        g.TranslateTransform(node.X * maze.NodeSize, node.Y * maze.NodeSize);
+                        node.Draw(g, maze.NodeSize, pen);
+                        g.TranslateTransform(-node.X * maze.NodeSize, -node.Y * maze.NodeSize);
+                    }
+                }
+                bitmap.Save(fileDialog.FileName, ImageFormat.Png);
+                bitmap.Dispose();
             }
         }
     }
