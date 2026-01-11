@@ -42,6 +42,7 @@
             this.wallsRemovedLabel = new System.Windows.Forms.Label();
             this.wallsRemovedUpDown = new System.Windows.Forms.NumericUpDown();
             this.exportAsImageButton = new System.Windows.Forms.Button();
+            this.visualiseGenerationCheckbox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.heightUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.wallsRemovedUpDown)).BeginInit();
@@ -149,11 +150,10 @@
             // 
             // stepCountLabel
             // 
-            this.stepCountLabel.AutoSize = true;
-            this.stepCountLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.stepCountLabel.Location = new System.Drawing.Point(218, 644);
+            this.stepCountLabel.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.stepCountLabel.Location = new System.Drawing.Point(186, 643);
             this.stepCountLabel.Name = "stepCountLabel";
-            this.stepCountLabel.Size = new System.Drawing.Size(90, 15);
+            this.stepCountLabel.Size = new System.Drawing.Size(150, 13);
             this.stepCountLabel.TabIndex = 10;
             this.stepCountLabel.Text = "Step Count: 999";
             this.stepCountLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -221,12 +221,24 @@
             this.exportAsImageButton.UseVisualStyleBackColor = true;
             this.exportAsImageButton.Click += new System.EventHandler(this.exportAsImageButton_Click);
             // 
+            // visualiseGenerationCheckbox
+            // 
+            this.visualiseGenerationCheckbox.AutoSize = true;
+            this.visualiseGenerationCheckbox.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.visualiseGenerationCheckbox.Location = new System.Drawing.Point(39, 642);
+            this.visualiseGenerationCheckbox.Name = "visualiseGenerationCheckbox";
+            this.visualiseGenerationCheckbox.Size = new System.Drawing.Size(132, 17);
+            this.visualiseGenerationCheckbox.TabIndex = 17;
+            this.visualiseGenerationCheckbox.Text = "Visualise Generation";
+            this.visualiseGenerationCheckbox.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(684, 661);
+            this.Controls.Add(this.visualiseGenerationCheckbox);
             this.Controls.Add(this.exportAsImageButton);
             this.Controls.Add(this.wallsRemovedLabel);
             this.Controls.Add(this.wallsRemovedUpDown);
@@ -271,6 +283,7 @@
         private System.Windows.Forms.Label wallsRemovedLabel;
         private System.Windows.Forms.NumericUpDown wallsRemovedUpDown;
         private System.Windows.Forms.Button exportAsImageButton;
+        private System.Windows.Forms.CheckBox visualiseGenerationCheckbox;
     }
 }
 
