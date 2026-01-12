@@ -375,48 +375,32 @@ namespace maze_nea
             int startIndex = new Random().Next(0, maze.Nodes.Count); // Random starting node to branch out from
             List<int> primaryIndexes = new List<int>(); // Nodes that are part of the maze
             List<int> frontierIndexes = new List<int>(); // Nodes that are adjacent to primary nodes
-            primaryIndexes.Add(startIndex); // Turn the starting node into a primary node
+            Color primaryColour = Color.White;
+            Color frontierColour = Color.PaleGreen;
 
             void getFrontierIndexes(int index)
             {
                 int x = index % maze.Width; // Column
                 int y = index / maze.Width; // Row
 
-                if (x != maze.Width - 1 && !primaryIndexes.Contains(index + 1) && !frontierIndexes.Contains(index + 1))
-                {
-                    frontierIndexes.Add(index + 1);
-                }
-                if (x != 0 && !primaryIndexes.Contains(index - 1) && !frontierIndexes.Contains(index - 1))
-                {
-                    frontierIndexes.Add(index - 1);
-                }
-                if (y != maze.Height - 1 && !primaryIndexes.Contains(index + maze.Width) && !frontierIndexes.Contains(index + maze.Width))
-                {
-                    frontierIndexes.Add(index + maze.Width);
-                }
-                if (y != 0 && !primaryIndexes.Contains(index - maze.Width) && !frontierIndexes.Contains(index - maze.Width))
-                {
-                    frontierIndexes.Add(index - maze.Width);
-                }
+                if (x != maze.Width - 1) addFrontier(index + 1);
+                if (x != 0) addFrontier(index - 1);
+                if (y != maze.Height - 1) addFrontier(index + maze.Width);
+                if (y != 0) addFrontier(index - maze.Width);
             }
-            void refreshColours()
+
+            void addFrontier(int index)
             {
-                foreach (Control control in mazePanel.Controls)
+                if (!primaryIndexes.Contains(index) && !frontierIndexes.Contains(index))
                 {
-                    control.BackColor = Color.Gray;
-                }
-                foreach (int index in primaryIndexes)
-                {
-                    mazePanel.Controls[index].BackColor = Color.LightGoldenrodYellow;
-                }
-                foreach (int index in frontierIndexes)
-                {
-                    mazePanel.Controls[index].BackColor = Color.LightGreen;
+                    frontierIndexes.Add(index);
+                    mazePanel.Controls[index].BackColor = frontierColour;
                 }
             }
 
+            primaryIndexes.Add(startIndex); // Turn the starting node into a primary node
+            mazePanel.Controls[startIndex].BackColor = primaryColour;
             getFrontierIndexes(startIndex);
-            refreshColours();
 
             Random random = new Random();
             // This block of code randomly picks a frontier node, connects it to a random adjacent primary node, then turns into a primary node
@@ -489,10 +473,16 @@ namespace maze_nea
                             MessageBox.Show("Invalid direction");
                             break;
                     }
+                    // Invalidate forces the wall to disappear on the UI
+                    mazePanel.Controls[primaryIndex].Invalidate();
+                    mazePanel.Controls[frontierIndex].Invalidate();
+
                     primaryIndexes.Add(frontierIndex);
                     frontierIndexes.Remove(frontierIndex);
+
+                    mazePanel.Controls[frontierIndex].BackColor = primaryColour; // Paint as a primary node
+
                     getFrontierIndexes(frontierIndex);
-                    refreshColours();
                 }
             }
 
@@ -550,25 +540,46 @@ namespace maze_nea
 
                     if (possibleDirections.Count > 0)
                     {
+                        
                         int direction = possibleDirections[random.Next(0, possibleDirections.Count)];
+                        int neighbourIndex = -1;
                         switch (direction)
                         {
                             case 0:
+                                neighbourIndex = randomNodeIndex - maze.Width;
                                 maze.Nodes[randomNodeIndex].removeTopValue();
-                                maze.Nodes[randomNodeIndex - maze.Width].removeBottomValue();
+                                maze.Nodes[neighbourIndex].removeBottomValue();
                                 break;
                             case 1:
+                                neighbourIndex = randomNodeIndex + 1;
                                 maze.Nodes[randomNodeIndex].removeRightValue();
-                                maze.Nodes[randomNodeIndex + 1].removeLeftValue();
+                                maze.Nodes[neighbourIndex].removeLeftValue();
                                 break;
                             case 2:
+                                neighbourIndex = randomNodeIndex + maze.Width;
                                 maze.Nodes[randomNodeIndex].removeBottomValue();
-                                maze.Nodes[randomNodeIndex + maze.Width].removeTopValue();
+                                maze.Nodes[neighbourIndex].removeTopValue();
                                 break;
                             case 3:
+                                neighbourIndex = randomNodeIndex - 1;
                                 maze.Nodes[randomNodeIndex].removeLeftValue();
-                                maze.Nodes[randomNodeIndex - 1].removeRightValue();
+                                maze.Nodes[neighbourIndex].removeRightValue();
                                 break;
+                        }
+                        if (neighbourIndex != -1)
+                        {
+                            
+                            mazePanel.Controls[neighbourIndex].Invalidate();
+                            mazePanel.Controls[randomNodeIndex].Invalidate();
+                            if (visualiseGenerationCheckbox.Checked)
+                            {
+                                mazePanel.Controls[neighbourIndex].BackColor = Color.LightSalmon;
+                                mazePanel.Controls[randomNodeIndex].BackColor = Color.LightSalmon;
+                                await Task.Delay(30);
+                                mazePanel.Controls[neighbourIndex].BackColor = Color.White;
+                                mazePanel.Controls[randomNodeIndex].BackColor = Color.White;
+                            }
+
                         }
                     }
                 }
