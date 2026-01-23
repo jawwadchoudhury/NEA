@@ -39,13 +39,13 @@
             this.stepCountLabel = new System.Windows.Forms.Label();
             this.importMazeButton = new System.Windows.Forms.Button();
             this.exportMazeButton = new System.Windows.Forms.Button();
-            this.wallsRemovedLabel = new System.Windows.Forms.Label();
-            this.wallsRemovedUpDown = new System.Windows.Forms.NumericUpDown();
+            this.complexityLabel = new System.Windows.Forms.Label();
+            this.complexityUpDown = new System.Windows.Forms.NumericUpDown();
             this.exportAsImageButton = new System.Windows.Forms.Button();
             this.visualiseGenerationCheckbox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.heightUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.wallsRemovedUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.complexityUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // mazePanel
@@ -181,31 +181,26 @@
             this.exportMazeButton.UseVisualStyleBackColor = true;
             this.exportMazeButton.Click += new System.EventHandler(this.exportMazeButton_Click);
             // 
-            // wallsRemovedLabel
+            // complexityLabel
             // 
-            this.wallsRemovedLabel.AutoSize = true;
-            this.wallsRemovedLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.wallsRemovedLabel.Location = new System.Drawing.Point(544, 602);
-            this.wallsRemovedLabel.Name = "wallsRemovedLabel";
-            this.wallsRemovedLabel.Size = new System.Drawing.Size(109, 15);
-            this.wallsRemovedLabel.TabIndex = 15;
-            this.wallsRemovedLabel.Text = "Walls Removed (%)";
+            this.complexityLabel.AutoSize = true;
+            this.complexityLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.complexityLabel.Location = new System.Drawing.Point(544, 602);
+            this.complexityLabel.Name = "complexityLabel";
+            this.complexityLabel.Size = new System.Drawing.Size(88, 15);
+            this.complexityLabel.TabIndex = 15;
+            this.complexityLabel.Text = "Complexity (%)";
             // 
-            // wallsRemovedUpDown
+            // complexityUpDown
             // 
-            this.wallsRemovedUpDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.wallsRemovedUpDown.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.wallsRemovedUpDown.Location = new System.Drawing.Point(547, 620);
-            this.wallsRemovedUpDown.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.wallsRemovedUpDown.Name = "wallsRemovedUpDown";
-            this.wallsRemovedUpDown.Size = new System.Drawing.Size(106, 23);
-            this.wallsRemovedUpDown.TabIndex = 14;
-            this.wallsRemovedUpDown.Value = new decimal(new int[] {
-            20,
+            this.complexityUpDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.complexityUpDown.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.complexityUpDown.Location = new System.Drawing.Point(547, 620);
+            this.complexityUpDown.Name = "complexityUpDown";
+            this.complexityUpDown.Size = new System.Drawing.Size(106, 23);
+            this.complexityUpDown.TabIndex = 14;
+            this.complexityUpDown.Value = new decimal(new int[] {
+            80,
             0,
             0,
             0});
@@ -240,8 +235,8 @@
             this.ClientSize = new System.Drawing.Size(684, 661);
             this.Controls.Add(this.visualiseGenerationCheckbox);
             this.Controls.Add(this.exportAsImageButton);
-            this.Controls.Add(this.wallsRemovedLabel);
-            this.Controls.Add(this.wallsRemovedUpDown);
+            this.Controls.Add(this.complexityLabel);
+            this.Controls.Add(this.complexityUpDown);
             this.Controls.Add(this.exportMazeButton);
             this.Controls.Add(this.importMazeButton);
             this.Controls.Add(this.stepCountLabel);
@@ -262,7 +257,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.widthUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.heightUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.wallsRemovedUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.complexityUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -280,8 +275,8 @@
         private System.Windows.Forms.Label stepCountLabel;
         private System.Windows.Forms.Button importMazeButton;
         private System.Windows.Forms.Button exportMazeButton;
-        private System.Windows.Forms.Label wallsRemovedLabel;
-        private System.Windows.Forms.NumericUpDown wallsRemovedUpDown;
+        private System.Windows.Forms.Label complexityLabel;
+        private System.Windows.Forms.NumericUpDown complexityUpDown;
         private System.Windows.Forms.Button exportAsImageButton;
         private System.Windows.Forms.CheckBox visualiseGenerationCheckbox;
     }

@@ -370,7 +370,7 @@ namespace maze_nea
                 MessageBox.Show("An error occurred while loading the maze: " + e.Message);
             }
         }
-        private async void primsAlgorithm(int wallsToRemovePercent)
+        private async void primsAlgorithm(int complexity)
         {
             int startIndex = new Random().Next(0, maze.Nodes.Count); // Random starting node to branch out from
             List<int> primaryIndexes = new List<int>(); // Nodes that are part of the maze
@@ -510,77 +510,74 @@ namespace maze_nea
                     maze.Nodes[startNodeIndex].ExitNode = true;
                     break;
             }
+
             // Prim's algorithm creates a "Perfect Maze" (a maze with no loops and only one solution)
             // This block removes additional walls to create loops and multiple solutions, and the proportion of walls removed is up to the user
-            if (wallsToRemovePercent != 0) // Makes sure it doesn't attempt to divide by 0, otherwise there'll be an error
+            for (int i = 0; i < (maze.Width * maze.Height * (100 - complexity)) / 100; i++)
             {
-                for (int i = 0; i < (maze.Width * maze.Height) / (100 / wallsToRemovePercent); i++)
+                int randomNodeIndex = random.Next(0, maze.Nodes.Count);
+                int x = randomNodeIndex % maze.Width; // Column
+                int y = randomNodeIndex / maze.Width; // Row
+                List<int> possibleDirections = new List<int>();
+
+                if (y != 0 && maze.Nodes[randomNodeIndex].getTopValue())
                 {
-                    int randomNodeIndex = random.Next(0, maze.Nodes.Count);
-                    int x = randomNodeIndex % maze.Width; // Column
-                    int y = randomNodeIndex / maze.Width; // Row
-                    List<int> possibleDirections = new List<int>();
+                    possibleDirections.Add(0);
+                }
+                if (x != maze.Width - 1 && maze.Nodes[randomNodeIndex].getRightValue())
+                {
+                    possibleDirections.Add(1);
+                }
+                if (y != maze.Height - 1 && maze.Nodes[randomNodeIndex].getBottomValue())
+                {
+                    possibleDirections.Add(2);
+                }
+                if (x != 0 && maze.Nodes[randomNodeIndex].getLeftValue())
+                {
+                    possibleDirections.Add(3);
+                }
+                if (possibleDirections.Count > 0)
+                {
 
-                    if (y != 0 && maze.Nodes[randomNodeIndex].getTopValue())
+                    int direction = possibleDirections[random.Next(0, possibleDirections.Count)];
+                    int neighbourIndex = -1;
+                    switch (direction)
                     {
-                        possibleDirections.Add(0);
+                        case 0:
+                            neighbourIndex = randomNodeIndex - maze.Width;
+                            maze.Nodes[randomNodeIndex].removeTopValue();
+                            maze.Nodes[neighbourIndex].removeBottomValue();
+                            break;
+                        case 1:
+                            neighbourIndex = randomNodeIndex + 1;
+                            maze.Nodes[randomNodeIndex].removeRightValue();
+                            maze.Nodes[neighbourIndex].removeLeftValue();
+                            break;
+                        case 2:
+                            neighbourIndex = randomNodeIndex + maze.Width;
+                            maze.Nodes[randomNodeIndex].removeBottomValue();
+                            maze.Nodes[neighbourIndex].removeTopValue();
+                            break;
+                        case 3:
+                            neighbourIndex = randomNodeIndex - 1;
+                            maze.Nodes[randomNodeIndex].removeLeftValue();
+                            maze.Nodes[neighbourIndex].removeRightValue();
+                            break;
                     }
-                    if (x != maze.Width - 1 && maze.Nodes[randomNodeIndex].getRightValue())
+                    if (neighbourIndex != -1)
                     {
-                        possibleDirections.Add(1);
-                    }
-                    if (y != maze.Height - 1 && maze.Nodes[randomNodeIndex].getBottomValue())
-                    {
-                        possibleDirections.Add(2);
-                    }
-                    if (x != 0 && maze.Nodes[randomNodeIndex].getLeftValue())
-                    {
-                        possibleDirections.Add(3);
-                    }
 
-                    if (possibleDirections.Count > 0)
-                    {
-                        
-                        int direction = possibleDirections[random.Next(0, possibleDirections.Count)];
-                        int neighbourIndex = -1;
-                        switch (direction)
+                        mazePanel.Controls[neighbourIndex].Invalidate();
+                        mazePanel.Controls[randomNodeIndex].Invalidate();
+                        if (visualiseGenerationCheckbox.Checked)
                         {
-                            case 0:
-                                neighbourIndex = randomNodeIndex - maze.Width;
-                                maze.Nodes[randomNodeIndex].removeTopValue();
-                                maze.Nodes[neighbourIndex].removeBottomValue();
-                                break;
-                            case 1:
-                                neighbourIndex = randomNodeIndex + 1;
-                                maze.Nodes[randomNodeIndex].removeRightValue();
-                                maze.Nodes[neighbourIndex].removeLeftValue();
-                                break;
-                            case 2:
-                                neighbourIndex = randomNodeIndex + maze.Width;
-                                maze.Nodes[randomNodeIndex].removeBottomValue();
-                                maze.Nodes[neighbourIndex].removeTopValue();
-                                break;
-                            case 3:
-                                neighbourIndex = randomNodeIndex - 1;
-                                maze.Nodes[randomNodeIndex].removeLeftValue();
-                                maze.Nodes[neighbourIndex].removeRightValue();
-                                break;
+                            mazePanel.Controls[neighbourIndex].BackColor = Color.LightSalmon;
+                            mazePanel.Controls[randomNodeIndex].BackColor = Color.LightSalmon;
+                            await Task.Delay(30);
+                            mazePanel.Controls[neighbourIndex].BackColor = Color.White;
+                            mazePanel.Controls[randomNodeIndex].BackColor = Color.White;
                         }
-                        if (neighbourIndex != -1)
-                        {
-                            
-                            mazePanel.Controls[neighbourIndex].Invalidate();
-                            mazePanel.Controls[randomNodeIndex].Invalidate();
-                            if (visualiseGenerationCheckbox.Checked)
-                            {
-                                mazePanel.Controls[neighbourIndex].BackColor = Color.LightSalmon;
-                                mazePanel.Controls[randomNodeIndex].BackColor = Color.LightSalmon;
-                                await Task.Delay(30);
-                                mazePanel.Controls[neighbourIndex].BackColor = Color.White;
-                                mazePanel.Controls[randomNodeIndex].BackColor = Color.White;
-                            }
 
-                        }
                     }
                 }
             }
@@ -804,7 +801,7 @@ namespace maze_nea
             solveMazeButton.Enabled = enabled;
             importMazeButton.Enabled = enabled;
             exportMazeButton.Enabled = enabled;
-            wallsRemovedUpDown.Enabled = enabled;
+            complexityUpDown.Enabled = enabled;
             exportAsImageButton.Enabled = enabled;
             visualiseGenerationCheckbox.Enabled = enabled;
         }
@@ -814,7 +811,7 @@ namespace maze_nea
             maze.setGenerated(false);
             stepCountLabel.Visible = false;
             generateEmptyMaze(maze.Width, maze.Height); // Reset the grid
-            primsAlgorithm((int)wallsRemovedUpDown.Value); // Run Prim's algorithm to generate the maze
+            primsAlgorithm((int)complexityUpDown.Value); // Run Prim's algorithm to generate the maze
         }
         private void widthUpDown_ValueChanged(object sender, EventArgs e)
         {
