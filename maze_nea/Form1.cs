@@ -409,7 +409,7 @@ namespace maze_nea
             {
                 if (visualiseGenerationCheckbox.Checked) // If visualisation is enabled, a small delay will be added to allow the user to see the generation process
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(10);
                 }
                 int frontierIndex = frontierIndexes[new Random().Next(0, frontierIndexes.Count)]; // Picks a random frontier node
                 List<int> currentFrontiers = new List<int>();
@@ -566,7 +566,6 @@ namespace maze_nea
                     }
                     if (neighbourIndex != -1)
                     {
-
                         mazePanel.Controls[neighbourIndex].Invalidate();
                         mazePanel.Controls[randomNodeIndex].Invalidate();
                         if (visualiseGenerationCheckbox.Checked)
@@ -625,7 +624,7 @@ namespace maze_nea
         }
         private void drawMaze()
         {
-            mazePanel.Controls.Clear(); // Resets the UI to prevent memory leaks
+            mazePanel.Controls.Clear(); // Clears the current controls ahead of redrawing
             int nodeSize = maze.NodeSize;
             int mazeWidth = maze.Width * nodeSize;
             int mazeHeight = maze.Height * nodeSize;
@@ -655,13 +654,14 @@ namespace maze_nea
                 mazePanel.Controls.Add(pictureBox);
             }
         }
-        private Graph generateGraph(int startingNodeIndex)
+        private Graph generateGraph()
         {
             Graph graph = new Graph();
             DynamicStack<int> toVisit = new DynamicStack<int>(); // Using a custom DynamicStack to manage memory efficiently
             HashSet<int> visited = new HashSet<int>();
-            toVisit.Push(startingNodeIndex);
-            visited.Add(startingNodeIndex);
+            // Use node 0 as the starting point for graph generation (there will always be a node with index 0 in any valid maze)
+            toVisit.Push(0);
+            visited.Add(0);
             // Using bitmasks and offsets reduces if statements, improving performance and code readability
             int[] bitmasks = new int[4] { 1, 2, 4, 8 };
             int[] offsets = new int[4] { -maze.Width, 1, maze.Width, -1 };
@@ -712,7 +712,7 @@ namespace maze_nea
             // A* pathfinding is an informed search, using heuristics to guide the search,
             // making it significantly faster than Dijkstra's or BFS for large mazes
 
-            Graph graph = generateGraph(startIndex); // Generate an optimised graph from the maze for pathfinding (this is much faster than using the maze directly)
+            Graph graph = generateGraph(); // Generate an optimised graph from the maze for pathfinding (this is much faster than using the maze directly)
 
             List<int> frontierNodes = new List<int>() { startIndex }; // Nodes that still need to be evaluated
             List<int> processedNodes = new List<int>(); // Fully evaluated nodes
