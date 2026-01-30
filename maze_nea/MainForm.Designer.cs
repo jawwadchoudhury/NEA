@@ -1,6 +1,6 @@
 ﻿namespace maze_nea
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.mazePanel = new System.Windows.Forms.Panel();
             this.widthUpDown = new System.Windows.Forms.NumericUpDown();
             this.heightUpDown = new System.Windows.Forms.NumericUpDown();
@@ -139,6 +139,7 @@
             // 
             // solveMazeButton
             // 
+            this.solveMazeButton.Enabled = false;
             this.solveMazeButton.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.solveMazeButton.Location = new System.Drawing.Point(186, 598);
             this.solveMazeButton.Name = "solveMazeButton";
@@ -172,6 +173,7 @@
             // 
             // exportMazeButton
             // 
+            this.exportMazeButton.Enabled = false;
             this.exportMazeButton.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
             this.exportMazeButton.Location = new System.Drawing.Point(164, 6);
             this.exportMazeButton.Name = "exportMazeButton";
@@ -207,6 +209,7 @@
             // 
             // exportAsImageButton
             // 
+            this.exportAsImageButton.Enabled = false;
             this.exportAsImageButton.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
             this.exportAsImageButton.Location = new System.Drawing.Point(517, 6);
             this.exportAsImageButton.Name = "exportAsImageButton";
@@ -227,7 +230,7 @@
             this.visualiseGenerationCheckbox.Text = "Visualise Generation";
             this.visualiseGenerationCheckbox.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -250,7 +253,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Molesey Maze Generator";
             this.TopMost = true;
